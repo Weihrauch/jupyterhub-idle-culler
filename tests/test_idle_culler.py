@@ -36,12 +36,12 @@ async def test_cull_idle(cull_idle, start_users, admin_request):
     # no change
     assert await count_active_users(admin_request) == 3
 
-    # time travel into the future, everyone should be culled
+    # time travel into the future, everyone should be culled except test-1
     with mock.patch(
         "jupyterhub_idle_culler.utcnow", lambda: utcnow() + timedelta(seconds=600)
     ):
-        await cull_idle(inactive_limit=300)
-    assert await count_active_users(admin_request) == 0
+        await cull_idle(inactive_limit=300, exclude_users="test-1")
+    assert await count_active_users(admin_request) == 1
 
 
 def test_help():

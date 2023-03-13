@@ -87,6 +87,7 @@ async def cull_idle(
     internal_certs_location="",
     cull_admin_users=True,
     api_page_size=0,
+    exclude_users=list(),
 ):
     """Shutdown idle single-user servers
 
@@ -236,7 +237,7 @@ async def cull_idle(
 
         should_cull = (
             inactive is not None and inactive.total_seconds() >= inactive_limit
-        )
+        ) and (user["name"] not in exclude_users)
         if should_cull:
             app_log.info(
                 f"Culling server {log_name} (inactive for {format_td(inactive)})"
@@ -365,7 +366,7 @@ async def cull_idle(
 
         should_cull = (
             inactive is not None and inactive.total_seconds() >= inactive_limit
-        ) and (cull_admin_users or not user_is_admin)
+        ) and (cull_admin_users or not user_is_admin) and (user["username"] not in exclude_users)
 
         if should_cull:
             app_log.info(f"Culling user {user['name']} " f"(inactive for {inactive})")
@@ -561,6 +562,16 @@ def main():
             """
         ).strip(),
     )
+    define(
+        "exclude_users",
+        type=list,
+        default=list(),
+        help=dedent(
+            """
+            Exclude users from cull idle"
+            """
+        ).strip(),
+    )
 
     parse_command_line()
     if not options.cull_every:
@@ -589,6 +600,7 @@ def main():
         internal_certs_location=options.internal_certs_location,
         cull_admin_users=options.cull_admin_users,
         api_page_size=options.api_page_size,
+        exclude_users=options.exclude_users
     )
     # schedule first cull immediately
     # because PeriodicCallback doesn't start until the end of the first interval
