@@ -131,6 +131,7 @@ python3 -m jupyterhub-idle-culler [--timeout=900] [--url=http://localhost:8081/h
   --cull-users                     Cull users in addition to servers.  This is
                                    for use in temporary-user cases such as
                                    tmpnb. (default False)
+  --exclude-users                  List of users that should not be culled 
   --internal-certs-location        The location of generated internal-ssl
                                    certificates (only needed with --ssl-
                                    enabled=true). (default internal-ssl)
