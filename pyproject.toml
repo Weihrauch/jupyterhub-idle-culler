@@ -27,6 +27,7 @@ classifiers = [
 dependencies = [
     "tornado",
     "python-dateutil",
+    "packaging"
 ]
 dynamic = ["version"]
 

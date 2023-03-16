@@ -238,6 +238,8 @@ async def cull_idle(
         should_cull = (
             inactive is not None and inactive.total_seconds() >= inactive_limit
         ) and (user["name"] not in exclude_users)
+        if not should_cull and user["name"] in exclude_users:
+            app_log.info(f"Not culling user {user['name']}" f"in exclude users list")
         if should_cull:
             app_log.info(
                 f"Culling server {log_name} (inactive for {format_td(inactive)})"
@@ -366,7 +368,7 @@ async def cull_idle(
 
         should_cull = (
             inactive is not None and inactive.total_seconds() >= inactive_limit
-        ) and (cull_admin_users or not user_is_admin) and (user["username"] not in exclude_users)
+        ) and (cull_admin_users or not user_is_admin) and (user["name"] not in exclude_users)
 
         if should_cull:
             app_log.info(f"Culling user {user['name']} " f"(inactive for {inactive})")
@@ -564,8 +566,8 @@ def main():
     )
     define(
         "exclude_users",
-        type=list,
-        default=list(),
+        type=str,
+        multiple=True,
         help=dedent(
             """
             Exclude users from cull idle"

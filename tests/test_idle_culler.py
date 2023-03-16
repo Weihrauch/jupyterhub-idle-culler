@@ -1,8 +1,17 @@
+import asyncio
+import os
 import sys
 from datetime import timedelta
 from subprocess import check_output
 from unittest import mock
+from unittest.mock import patch, AsyncMock, Mock
 
+import nest_asyncio
+import pytest
+from tornado.ioloop import IOLoop
+from tornado.platform.asyncio import AsyncIOMainLoop
+
+import jupyterhub_idle_culler
 from jupyterhub_idle_culler import utcnow
 
 
@@ -56,7 +65,8 @@ async def test_cull_idle_exclude_users(cull_idle, start_users, admin_request):
         "jupyterhub_idle_culler.utcnow", lambda: utcnow() + timedelta(seconds=600)
     ):
         await cull_idle(inactive_limit=300,exclude_users=["test-1","test-2"])
-    assert await count_active_users(admin_request) == 2
+        assert await count_active_users(admin_request) == 2
+
 
 def test_help():
     check_output([sys.executable, "-m", "jupyterhub_idle_culler", "--help"])
